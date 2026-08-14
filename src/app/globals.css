@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text-primary: #1e293b;
+  --color-text-muted: #64748b;
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  --color-tech-bg: #dbeafe;
+  --color-tech-text: #1d4ed8;
+  --color-tech-dot: #3b82f6;
+
+  --color-recep-bg: #cffafe;
+  --color-recep-text: #0e7490;
+  --color-recep-dot: #06b6d4;
+
+  --color-manip-bg: #fef3c7;
+  --color-manip-text: #92400e;
+  --color-manip-dot: #f59e0b;
+
+  --color-repos-bg: #f1f5f9;
+  --color-repos-text: #94a3b8;
+  --color-repos-badge-bg: #e2e8f0;
+  --color-repos-badge-text: #64748b;
+
+  --color-danger: #dc2626;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-muted: var(--color-text-muted);
+
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+
+  --color-tech-bg: var(--color-tech-bg);
+  --color-tech-text: var(--color-tech-text);
+  --color-tech-dot: var(--color-tech-dot);
+
+  --color-recep-bg: var(--color-recep-bg);
+  --color-recep-text: var(--color-recep-text);
+  --color-recep-dot: var(--color-recep-dot);
+
+  --color-manip-bg: var(--color-manip-bg);
+  --color-manip-text: var(--color-manip-text);
+  --color-manip-dot: var(--color-manip-dot);
+
+  --color-repos-bg: var(--color-repos-bg);
+  --color-repos-text: var(--color-repos-text);
+  --color-repos-badge-bg: var(--color-repos-badge-bg);
+  --color-repos-badge-text: var(--color-repos-badge-text);
+
+  --color-danger: var(--color-danger);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
