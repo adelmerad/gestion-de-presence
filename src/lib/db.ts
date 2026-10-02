@@ -147,7 +147,8 @@ export async function setAttendanceDay(dateISO: string, entries: AttendanceDay):
 export async function readRates(): Promise<Rates> {
   if (remote) return redisStore.readRates();
   await ensureSeed();
-  return readJson<Rates>(RATES_FILE, SEED_RATES);
+  // Les tarifs absents du fichier (rôle ajouté depuis) prennent leur valeur par défaut.
+  return { ...SEED_RATES, ...(await readJson<Partial<Rates>>(RATES_FILE, {})) };
 }
 
 export async function updateRates(patch: Partial<Rates>): Promise<Rates> {

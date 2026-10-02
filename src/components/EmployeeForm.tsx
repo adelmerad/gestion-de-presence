@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Employee, Role } from "@/lib/types";
+import { Employee, Role, ROLES } from "@/lib/types";
 import { Modal } from "./ui/Modal";
 import { Button } from "./ui/Button";
 import { Select } from "./ui/Select";
@@ -14,7 +14,11 @@ interface EmployeeFormProps {
   onSubmit: (data: { name: string; role: Role }) => Promise<void>;
 }
 
-const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur"];
+const ROLE_HINTS: Partial<Record<Role, string>> = {
+  manipulateur: "Payé au nombre de scanners effectués, pas à la journée.",
+  medecin: "Le montant est saisi à la main chaque jour où il/elle remplace.",
+  chef: "Apparaît comme médecin du jour, mais n'est pas compté dans la paie.",
+};
 
 export function EmployeeForm({ employee, onClose, onSubmit }: EmployeeFormProps) {
   const [name, setName] = useState(employee?.name ?? "");
@@ -79,9 +83,7 @@ export function EmployeeForm({ employee, onClose, onSubmit }: EmployeeFormProps)
             onChange={setRole}
             options={ROLES.map((r) => ({ value: r, label: <RoleBadge role={r} /> }))}
           />
-          {role === "manipulateur" && (
-            <p className="text-xs text-ink-soft">Payé au nombre de scanners effectués, pas à la journée.</p>
-          )}
+          {ROLE_HINTS[role] && <p className="text-xs text-ink-soft">{ROLE_HINTS[role]}</p>}
         </div>
         {error && <p className="rounded-md bg-danger-wash px-3 py-2 text-sm font-medium text-danger">{error}</p>}
       </form>
