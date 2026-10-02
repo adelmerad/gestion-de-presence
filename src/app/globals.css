@@ -73,3 +73,12 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-sans);
 }
+
+/* Sur téléphone, un champ < 16px fait zoomer l'iPhone à chaque saisie. */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
