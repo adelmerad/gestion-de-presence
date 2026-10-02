@@ -150,7 +150,10 @@ export function EmployeeForm({ employee, onClose, onSubmit }: EmployeeFormProps)
                       inputMode="numeric"
                       placeholder="0"
                       value={salary}
-                      onChange={(e) => setSalary(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                      onChange={(e) => {
+                        setSalary(e.target.value.replace(/\D/g, "").slice(0, 8));
+                        setError(null);
+                      }}
                       className="w-28 bg-transparent text-right font-mono text-base font-semibold tabular-nums text-ink outline-none placeholder:text-ink-faint"
                       aria-label="Salaire mensuel en DA"
                     />
