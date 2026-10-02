@@ -7,10 +7,15 @@ Pensée d'abord pour le téléphone, elle s'utilise depuis n'importe où, à plu
 ## Fonctionnalités
 
 - **Calendrier mensuel** : saisie des présences jour par jour. Le jour de repos hebdomadaire (vendredi) est verrouillé. Chaque case montre les personnes présentes, et le montant du jour sur grand écran.
-- **Deux modes de rémunération** : à la journée de présence, ou à l'acte (nombre d'examens réalisés dans la journée) pour les postes payés au rendement.
+- **Médecin du jour** : chaque jour, on désigne le médecin de garde. Le médecin responsable du centre est suivi sans être compté dans la paie ; les médecins remplaçants sont payés selon un montant saisi pour la journée.
+- **Plusieurs modes de rémunération** :
+  - à la journée de présence, selon le rôle ;
+  - à l'acte (nombre d'examens réalisés dans la journée) pour les postes payés au rendement ;
+  - avec un bonus par examen quand un membre du personnel payé à la journée réalise aussi des examens ;
+  - au montant libre, saisi chaque jour, pour les remplacements.
 - **Fiche de paie du mois** : total par employé et total général, recalculés à chaque saisie.
 - **Gestion de l'équipe** : ajout, modification et désactivation des employés. Un employé désactivé disparaît du calendrier mais son historique de paie est conservé.
-- **Tarifs par rôle** : le montant journalier ou par acte de chaque rôle se règle depuis l'interface.
+- **Tarifs réglables** : le montant journalier ou par acte de chaque rôle, ainsi que le bonus par examen, se règlent depuis l'interface.
 - **Accès protégé** par mot de passe, avec session persistante sur chaque appareil.
 - **Interface adaptée au téléphone** : navigation par onglets, fenêtres de saisie en panneau bas, cibles tactiles larges.
 
