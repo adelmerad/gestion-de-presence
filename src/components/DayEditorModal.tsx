@@ -194,7 +194,8 @@ export function DayEditorModal({ dateISO, employees, entries, rates, onClose, on
                       <Identity employee={emp} dimmed={value === undefined} />
                       <Toggle decorative checked={value !== undefined} />
                     </button>
-                    {value !== undefined && canDoBonusScans(emp.role) && (
+                    {/* Seulement pour qui fait des scanners (ou a déjà des scanners ce jour-là). */}
+                    {value !== undefined && canDoBonusScans(emp.role) && (emp.doesScans || typeof value === "number") && (
                       <div className="-mt-1 flex items-center justify-between gap-3 pb-2 pl-14 pr-2">
                         {typeof value === "number" ? (
                           <>

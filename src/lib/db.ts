@@ -108,7 +108,7 @@ export async function addEmployee(employee: Employee): Promise<Employee[]> {
 
 export async function updateEmployee(
   id: string,
-  patch: Partial<Pick<Employee, "name" | "role" | "active">>,
+  patch: Partial<Omit<Employee, "id">>,
 ): Promise<Employee | null> {
   if (remote) return redisStore.updateEmployee(id, patch);
   await ensureSeed();

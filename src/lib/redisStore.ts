@@ -76,7 +76,7 @@ export async function addEmployee(employee: Employee): Promise<void> {
 
 export async function updateEmployee(
   id: string,
-  patch: Partial<Pick<Employee, "name" | "role" | "active">>,
+  patch: Partial<Omit<Employee, "id">>,
 ): Promise<Employee | null> {
   await ensureSeed();
   const raw = await redis().hget<string>(KEY_EMPLOYEES, id);

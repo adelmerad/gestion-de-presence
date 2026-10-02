@@ -7,6 +7,8 @@ import { ROLES } from "@/lib/types";
 const createSchema = z.object({
   name: z.string().trim().min(1, "Le nom est requis"),
   role: z.enum(ROLES),
+  monthlySalary: z.number().int().min(1).nullable().optional(),
+  doesScans: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -21,12 +23,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Requête invalide" }, { status: 400 });
   }
 
-  const newEmployee = {
-    id: nanoid(8),
-    name: parsed.data.name,
-    role: parsed.data.role,
-    active: true,
-  };
+  const newEmployee = { id: nanoid(8), ...parsed.data, active: true };
   await addEmployee(newEmployee);
 
   return NextResponse.json(newEmployee, { status: 201 });

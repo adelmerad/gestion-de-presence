@@ -1,7 +1,12 @@
 import { AttendanceStore, AttendanceValue, canDoBonusScans, Employee, Rates } from "./types";
 
-export function dailyPay(role: Employee["role"], value: AttendanceValue | undefined, rates: Rates): number {
+export function dailyPay(employee: Employee, value: AttendanceValue | undefined, rates: Rates): number {
   if (value === undefined) return 0;
+  const role = employee.role;
+  // Salaire fixe: la présence ne rapporte rien de plus, seuls les scanners en plus s'ajoutent.
+  if (employee.monthlySalary) {
+    return typeof value === "number" && canDoBonusScans(role) ? value * rates.scanBonus : 0;
+  }
   switch (role) {
     case "chef":
       return 0; // le responsable du centre n'est pas payé via l'application
@@ -38,6 +43,8 @@ export interface EmployeeMonthTotal {
   count: number;
   /** Scanners faits en plus (hors manipulateur, dont count est déjà le nombre de scanners). */
   bonusScans: number;
+  /** Payé au salaire mensuel fixe (inclus dans total). */
+  fixed: boolean;
   total: number;
 }
 
@@ -70,14 +77,14 @@ export function monthlyTotals(
   const perEmployee: EmployeeMonthTotal[] = relevantEmployees.map((employee) => {
     let count = 0;
     let bonusScans = 0;
-    let total = 0;
+    let total = employee.monthlySalary ?? 0;
     for (const date of datesInMonth) {
       const value = store[date][employee.id];
       count += dailyCount(employee.role, value);
       if (employee.role !== "manipulateur") bonusScans += dailyScans(employee.role, value);
-      total += dailyPay(employee.role, value, rates);
+      total += dailyPay(employee, value, rates);
     }
-    return { employee, count, bonusScans, total };
+    return { employee, count, bonusScans, fixed: Boolean(employee.monthlySalary), total };
   });
 
   const grandTotal = perEmployee.reduce((sum, e) => sum + e.total, 0);
@@ -86,5 +93,5 @@ export function monthlyTotals(
 }
 
 export function dayTotal(employees: Employee[], dayEntries: Record<string, AttendanceValue>, rates: Rates): number {
-  return employees.reduce((sum, emp) => sum + dailyPay(emp.role, dayEntries[emp.id], rates), 0);
+  return employees.reduce((sum, emp) => sum + dailyPay(emp, dayEntries[emp.id], rates), 0);
 }

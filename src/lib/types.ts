@@ -7,7 +7,10 @@ export const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur", "m
 export const DOCTOR_ROLES: Role[] = ["chef", "medecin"];
 export const isDoctor = (role: Role) => DOCTOR_ROLES.includes(role);
 
-/** Rôles payés à la journée qui peuvent faire des scanners en plus (payés en bonus). */
+/**
+ * Rôles payés à la journée qui peuvent faire des scanners en plus (payés en
+ * bonus). L'option n'est proposée qu'aux employés qui ont `doesScans`.
+ */
 export const SCAN_BONUS_ROLES: Role[] = ["technicien", "receptionniste"];
 export const canDoBonusScans = (role: Role) => SCAN_BONUS_ROLES.includes(role);
 
@@ -16,7 +19,17 @@ export interface Employee {
   name: string;
   role: Role;
   active: boolean;
+  /** Salaire mensuel fixe en DA: remplace le calcul à la journée. Absent ou null = payé à la journée. */
+  monthlySalary?: number | null;
+  /** Fait aussi des scanners (bonus par scanner), pour les rôles de SCAN_BONUS_ROLES. */
+  doesScans?: boolean;
 }
+
+/** Champs modifiables depuis le formulaire employé. */
+export type EmployeeFields = Pick<Employee, "name" | "role" | "monthlySalary" | "doesScans">;
+
+/** Le salaire fixe ne concerne pas les médecins (montant du jour ou non payé). */
+export const canHaveFixedSalary = (role: Role) => !DOCTOR_ROLES.includes(role);
 
 /**
  * Valeur d'un employé pour un jour (clé absente = absent):

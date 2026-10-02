@@ -7,6 +7,8 @@ const patchSchema = z.object({
   name: z.string().trim().min(1).optional(),
   role: z.enum(ROLES).optional(),
   active: z.boolean().optional(),
+  monthlySalary: z.number().int().min(1).nullable().optional(),
+  doesScans: z.boolean().optional(),
 });
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
