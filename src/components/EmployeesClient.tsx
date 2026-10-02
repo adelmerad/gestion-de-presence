@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MoreHorizontal, Pencil, Plus, RotateCcw, UserMinus } from "lucide-react";
-import { Employee, Role } from "@/lib/types";
+import { Employee, EmployeeFields } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { Modal } from "./ui/Modal";
 import { Menu, MenuItem, MenuSeparator } from "./ui/Menu";
@@ -25,7 +25,7 @@ export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
 
   const activeCount = employees.filter((e) => e.active).length;
 
-  async function handleCreate(data: { name: string; role: Role }) {
+  async function handleCreate(data: EmployeeFields) {
     const res = await fetch("/api/employees", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,7 +37,7 @@ export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
     setFormTarget(null);
   }
 
-  async function handleUpdate(id: string, data: { name: string; role: Role }) {
+  async function handleUpdate(id: string, data: EmployeeFields) {
     const res = await fetch(`/api/employees/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -98,6 +98,13 @@ export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
                 <Avatar employee={emp} />
                 <div className="min-w-0">
                   <p className="truncate text-[15px] font-semibold text-ink">{emp.name}</p>
+                  {(emp.monthlySalary || emp.doesScans) && (
+                    <p className="truncate font-mono text-[11px] text-ink-soft">
+                      {emp.monthlySalary ? `Fixe · ${emp.monthlySalary.toLocaleString("fr-FR")} DA/mois` : ""}
+                      {emp.monthlySalary && emp.doesScans ? " · " : ""}
+                      {emp.doesScans && <span className="text-manip">+ scanners</span>}
+                    </p>
+                  )}
                   {/* Téléphone: rôle et statut sous le nom. */}
                   <div className="mt-1 flex items-center gap-2.5 md:hidden">
                     <RoleBadge role={emp.role} />
