@@ -5,7 +5,7 @@ import { SEED_EMPLOYEES, SEED_RATES } from "./seed";
 import * as redisStore from "./redisStore";
 
 // En ligne (variables Upstash présentes): stockage Redis.
-// Sur l'ordinateur (start.bat): fichiers JSON du dossier "data/".
+// Sinon (développement sans .env.local): fichiers JSON du dossier "data/".
 const remote = redisStore.isRedisConfigured();
 
 const DATA_DIR = path.join(process.cwd(), "data");

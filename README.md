@@ -2,57 +2,45 @@
 
 Application de suivi des présences et de calcul de la paie du personnel.
 
-## Démarrage
+## Utilisation
 
-**Option simple :** double-cliquez sur `start.bat`. Il installe les dépendances si besoin, démarre l'application et ouvre votre navigateur automatiquement.
+L'application est en ligne : [gestion-de-presence-sooty.vercel.app](https://gestion-de-presence-sooty.vercel.app). Elle fonctionne sur ordinateur et sur téléphone, depuis n'importe où. Un mot de passe est demandé à la première connexion, puis l'appareil reste connecté.
 
-**Option manuelle :**
+Sur le téléphone, utilisez **Ajouter à l'écran d'accueil** (menu du navigateur) pour l'ouvrir comme une application.
+
+## Fonctionnement
+
+- **Calendrier** : cliquez sur un jour pour indiquer qui était présent. Le vendredi est automatiquement un jour de repos (non modifiable). Sur téléphone, chaque présent est représenté par une pastille de couleur (le chiffre indique le nombre de scanners de Nadjib).
+- **Paie** : chaque employé présent est payé le tarif journalier de son rôle, sauf le **manipulateur** (Nadjib) qui est payé par scanner effectué (donc 0 DA s'il n'a fait aucun scanner). Les montants se règlent dans la page **Tarifs**.
+- **Récapitulatif** : le panneau à côté du calendrier affiche le total du mois affiché, par employé et au global. Il se met à jour automatiquement.
+- **Employés** : la page "Employés" permet d'ajouter un nouvel employé ou de désactiver un employé qui ne travaille plus (son historique de paie est conservé).
+
+## Hébergement et données
+
+L'application est hébergée sur [Vercel](https://vercel.com) (offre gratuite) et se met à jour automatiquement à chaque envoi sur la branche `main` de GitHub. Les données sont stockées dans une base **Upstash Redis** (offre gratuite).
+
+Réglages dans Vercel (**Environment Variables**), suivis d'un **Redeploy** après chaque modification :
+
+- `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` : accès à la base, visibles dans la console Upstash (section **REST API** de la base).
+- `APP_PASSWORD` : le mot de passe de l'application. Le changer déconnecte tous les appareils.
+
+Le dossier `data/` sur l'ordinateur contient l'ancienne version locale des données, conservée comme sauvegarde. Il n'est plus mis à jour.
+
+## Développement
+
+Prérequis : [Node.js](https://nodejs.org/) 18 ou plus récent.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Puis ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
+Puis ouvrez [http://localhost:3000](http://localhost:3000).
 
-Pour arrêter l'application, retournez dans la fenêtre noire (terminal) qui s'est ouverte et appuyez sur `Ctrl+C`, ou fermez simplement la fenêtre.
+**Attention :** si un fichier `.env.local` contient les variables Upstash, la version lancée sur l'ordinateur lit et modifie les **vraies données en ligne**. Sans ce fichier, elle utilise le dossier `data/`.
 
-## Fonctionnement
+Pour recopier le dossier `data/` dans la base en ligne (refusé si la base contient déjà des présences, sauf avec `--force` qui les remplace) :
 
-- **Calendrier** : cliquez sur un jour pour indiquer qui était présent. Le vendredi est automatiquement un jour de repos (non modifiable).
-- **Paie** : chaque employé présent gagne 1000 DA par jour, sauf **Nadjib** qui est payé 1000 DA par scanner effectué (donc 0 DA s'il n'a fait aucun scanner, et plus de 1000 DA s'il en a fait plusieurs).
-- **Récapitulatif** : le panneau à droite du calendrier affiche le total du mois affiché, par employé et au global. Il se met à jour automatiquement.
-- **Employés** : la page "Employés" permet d'ajouter un nouvel employé ou de désactiver un employé qui ne travaille plus (son historique de paie est conservé).
-
-## Où sont stockées les données
-
-Tout est enregistré localement dans le dossier `data/` :
-
-- `data/employees.json` — la liste des employés
-- `data/attendance.json` — les présences et scanners jour par jour
-
-**Sauvegarde :** pour conserver une copie de sécurité, il suffit de copier ce dossier `data/` ailleurs (clé USB, autre dossier). Comme le projet est dans OneDrive, ces fichiers sont aussi automatiquement synchronisés dans le cloud.
-
-**Attention :** ne modifiez pas ces fichiers `.json` à la main pendant que l'application est ouverte, au risque de perdre des données.
-
-## Prérequis technique
-
-[Node.js](https://nodejs.org/) (version 18 ou plus récente) doit être installé sur l'ordinateur. C'est déjà le cas si `start.bat` ou `npm install` fonctionnent sans erreur.
-
-## Utiliser l'application en ligne (téléphone)
-
-L'application peut être hébergée gratuitement sur [Vercel](https://vercel.com) pour être utilisée depuis n'importe où, sans que l'ordinateur soit allumé. En ligne, les données sont stockées dans une base **Upstash Redis** au lieu du dossier `data/`, et l'accès est protégé par un mot de passe.
-
-1. Sur Vercel, importez le dépôt GitHub `gestion-de-presence` (bouton **Add New → Project**).
-2. Dans le projet Vercel, onglet **Storage** → **Upstash for Redis** → créez une base (offre gratuite) et liez-la au projet. Les variables `KV_REST_API_URL` et `KV_REST_API_TOKEN` sont ajoutées automatiquement.
-3. Onglet **Settings → Environment Variables** : ajoutez `APP_PASSWORD` avec le mot de passe de votre choix.
-4. Onglet **Deployments** : relancez un déploiement (**Redeploy**) pour prendre en compte ces variables.
-5. Pour copier les données existantes du dossier `data/` vers la base en ligne : créez un fichier `.env.local` à la racine du projet contenant les deux variables `KV_REST_API_URL` et `KV_REST_API_TOKEN` (visibles dans l'onglet Storage de Vercel), puis lancez :
-
-   ```bash
-   node --env-file=.env.local scripts/migrate-to-redis.mjs
-   ```
-
-Sur le téléphone, ouvrez l'adresse du site, entrez le mot de passe, puis utilisez **Ajouter à l'écran d'accueil** (menu du navigateur) pour l'ouvrir comme une application.
-
-**Attention :** une fois en ligne, la version de `start.bat` (sur l'ordinateur) continue d'utiliser le dossier `data/` local. Les deux ne sont pas synchronisées : utilisez la version en ligne.
+```bash
+node --env-file=.env.local scripts/migrate-to-redis.mjs
+```
