@@ -24,7 +24,7 @@ export function MonthSummaryPanel({ employees, attendance, monthKey, monthLabel,
       </header>
 
       <ul className="px-5 py-2">
-        {perEmployee.map(({ employee, count, total }) => {
+        {perEmployee.map(({ employee, count, bonusScans, total }) => {
           const unit = employee.role === "manipulateur" ? "scanner" : "jour";
           return (
             <li key={employee.id} className="flex items-end gap-2 py-2">
@@ -36,6 +36,12 @@ export function MonthSummaryPanel({ employees, attendance, monthKey, monthLabel,
                 <p className="pl-2.5 font-mono text-[11px] text-ink-soft">
                   {count} {unit}
                   {count > 1 ? "s" : ""}
+                  {bonusScans > 0 && (
+                    <span className="text-manip">
+                      {" "}
+                      · {bonusScans} scanner{bonusScans > 1 ? "s" : ""}
+                    </span>
+                  )}
                 </p>
               </div>
               <span className="mb-1.5 min-w-4 flex-1 border-b border-dotted border-ink-faint/50" />

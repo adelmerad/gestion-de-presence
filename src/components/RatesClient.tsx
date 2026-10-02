@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Check } from "lucide-react";
-import { Rates } from "@/lib/types";
+import { RateKey, Rates } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { PageHeader } from "./ui/PageHeader";
 import { RoleBadge } from "./ui/RoleBadge";
@@ -11,11 +11,24 @@ interface RatesClientProps {
   initialRates: Rates;
 }
 
-const FIELDS: { role: keyof Rates; unit: string; hint: string }[] = [
-  { role: "technicien", unit: "par jour", hint: "Versé pour chaque jour de présence." },
-  { role: "receptionniste", unit: "par jour", hint: "Versé pour chaque jour de présence." },
-  { role: "manipulateur", unit: "par scanner", hint: "Multiplié par le nombre de scanners du jour." },
-  { role: "menage", unit: "par jour", hint: "Versé pour chaque jour travaillé." },
+const SCAN_BONUS_BADGE = (
+  <span className="inline-flex items-center gap-1.5 rounded-full bg-manip-wash py-0.5 pl-1.5 pr-2 text-xs font-semibold text-manip">
+    <span className="h-1.5 w-1.5 rounded-full bg-manip" />
+    Scanner en plus
+  </span>
+);
+
+const FIELDS: { key: RateKey; badge: ReactNode; unit: string; hint: string }[] = [
+  { key: "technicien", badge: <RoleBadge role="technicien" />, unit: "par jour", hint: "Versé pour chaque jour de présence." },
+  { key: "receptionniste", badge: <RoleBadge role="receptionniste" />, unit: "par jour", hint: "Versé pour chaque jour de présence." },
+  { key: "manipulateur", badge: <RoleBadge role="manipulateur" />, unit: "par scanner", hint: "Multiplié par le nombre de scanners du jour." },
+  { key: "menage", badge: <RoleBadge role="menage" />, unit: "par jour", hint: "Versé pour chaque jour travaillé." },
+  {
+    key: "scanBonus",
+    badge: SCAN_BONUS_BADGE,
+    unit: "par scanner",
+    hint: "Ajouté au salaire du jour quand un(e) technicien(ne) ou réceptionniste fait un scanner.",
+  },
 ];
 
 export function RatesClient({ initialRates }: RatesClientProps) {
@@ -25,7 +38,7 @@ export function RatesClient({ initialRates }: RatesClientProps) {
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const dirty = FIELDS.some((f) => draft[f.role] !== rates[f.role]);
+  const dirty = FIELDS.some((f) => draft[f.key] !== rates[f.key]);
 
   async function handleSave() {
     setSaving(true);
@@ -58,18 +71,18 @@ export function RatesClient({ initialRates }: RatesClientProps) {
         calendrier.
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-        {FIELDS.map(({ role, unit, hint }) => {
-          const changed = draft[role] !== rates[role];
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+        {FIELDS.map(({ key, badge, unit, hint }) => {
+          const changed = draft[key] !== rates[key];
           return (
             <label
-              key={role}
+              key={key}
               className={`group flex cursor-text flex-col rounded-[10px] border bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-colors focus-within:border-accent ${
                 changed ? "border-accent/60" : "border-line hover:border-ink-faint/60"
               }`}
             >
               <span className="flex items-center justify-between">
-                <RoleBadge role={role} />
+                {badge}
                 <span className="text-xs font-medium text-ink-soft">{unit}</span>
               </span>
               <span className="mt-4 flex items-baseline gap-2">
@@ -77,10 +90,10 @@ export function RatesClient({ initialRates }: RatesClientProps) {
                   type="number"
                   inputMode="numeric"
                   min={0}
-                  value={draft[role]}
+                  value={draft[key]}
                   onChange={(e) => {
                     const n = Number(e.target.value);
-                    setDraft((prev) => ({ ...prev, [role]: Number.isNaN(n) ? 0 : n }));
+                    setDraft((prev) => ({ ...prev, [key]: Number.isNaN(n) ? 0 : n }));
                   }}
                   className="w-full min-w-0 bg-transparent font-mono text-[32px] font-semibold tabular-nums leading-none text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                 />

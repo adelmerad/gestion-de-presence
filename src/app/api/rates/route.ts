@@ -7,6 +7,7 @@ const patchSchema = z.object({
   receptionniste: z.number().int().min(0).optional(),
   manipulateur: z.number().int().min(0).optional(),
   menage: z.number().int().min(0).optional(),
+  scanBonus: z.number().int().min(0).optional(),
 });
 
 export async function GET() {
