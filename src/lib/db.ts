@@ -2,6 +2,11 @@ import fs from "fs/promises";
 import path from "path";
 import { AttendanceDay, AttendanceStore, Employee, Rates } from "./types";
 import { SEED_EMPLOYEES, SEED_RATES } from "./seed";
+import * as redisStore from "./redisStore";
+
+// En ligne (variables Upstash présentes): stockage Redis.
+// Sur l'ordinateur (start.bat): fichiers JSON du dossier "data/".
+const remote = redisStore.isRedisConfigured();
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const EMPLOYEES_FILE = path.join(DATA_DIR, "employees.json");
@@ -83,11 +88,16 @@ export async function ensureSeed(): Promise<void> {
 }
 
 export async function readEmployees(): Promise<Employee[]> {
+  if (remote) return redisStore.readEmployees();
   await ensureSeed();
   return readJson<Employee[]>(EMPLOYEES_FILE, SEED_EMPLOYEES);
 }
 
 export async function addEmployee(employee: Employee): Promise<Employee[]> {
+  if (remote) {
+    await redisStore.addEmployee(employee);
+    return readEmployees();
+  }
   await ensureSeed();
   return mutateJson(EMPLOYEES_FILE, SEED_EMPLOYEES, (list) => [...list, employee]);
 }
@@ -96,6 +106,7 @@ export async function updateEmployee(
   id: string,
   patch: Partial<Pick<Employee, "name" | "role" | "active">>,
 ): Promise<Employee | null> {
+  if (remote) return redisStore.updateEmployee(id, patch);
   await ensureSeed();
   let updated: Employee | null = null;
   await mutateJson(EMPLOYEES_FILE, SEED_EMPLOYEES, (list) =>
@@ -109,11 +120,13 @@ export async function updateEmployee(
 }
 
 export async function readAttendance(): Promise<AttendanceStore> {
+  if (remote) return redisStore.readAttendance();
   await ensureSeed();
   return readJson<AttendanceStore>(ATTENDANCE_FILE, {});
 }
 
 export async function setAttendanceDay(dateISO: string, entries: AttendanceDay): Promise<AttendanceDay> {
+  if (remote) return redisStore.setAttendanceDay(dateISO, entries);
   await ensureSeed();
   const store = await mutateJson(ATTENDANCE_FILE, {} as AttendanceStore, (current) => {
     const next = { ...current };
@@ -128,11 +141,13 @@ export async function setAttendanceDay(dateISO: string, entries: AttendanceDay):
 }
 
 export async function readRates(): Promise<Rates> {
+  if (remote) return redisStore.readRates();
   await ensureSeed();
   return readJson<Rates>(RATES_FILE, SEED_RATES);
 }
 
 export async function updateRates(patch: Partial<Rates>): Promise<Rates> {
+  if (remote) return redisStore.updateRates(patch);
   await ensureSeed();
   return mutateJson(RATES_FILE, SEED_RATES, (current) => ({ ...current, ...patch }));
 }

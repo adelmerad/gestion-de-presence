@@ -33,7 +33,7 @@ export function MonthNav({ monthDate, onChange }: MonthNavProps) {
           <ChevronRight size={18} />
         </button>
       </div>
-      <h2 className="text-lg font-semibold text-text-primary sm:text-xl">{formatMonthYear(monthDate)}</h2>
+      <h2 className="text-base font-semibold text-text-primary sm:text-xl">{formatMonthYear(monthDate)}</h2>
       <Button variant="secondary" onClick={() => onChange(todayMonthStart)}>
         Aujourd&apos;hui
       </Button>
