@@ -2,10 +2,10 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, SESSION_MAX_AGE, sessionToken } from "@/lib/auth";
+import { appPassword, SESSION_COOKIE, SESSION_MAX_AGE, sessionToken } from "@/lib/auth";
 
 export async function login(_prev: string | null, formData: FormData): Promise<string | null> {
-  const password = process.env.APP_PASSWORD;
+  const password = appPassword();
   const attempt = String(formData.get("password") ?? "");
 
   if (!password || (await sessionToken(attempt)) !== (await sessionToken(password))) {
