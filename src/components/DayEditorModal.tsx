@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { AttendanceDay, AttendanceValue, Employee, Rates } from "@/lib/types";
+import { AttendanceDay, AttendanceValue, Employee, Rates, ROLE_LABELS } from "@/lib/types";
 import { dayTotal } from "@/lib/payroll";
 import { formatDayLong, parseISO } from "@/lib/dates";
-import { ROLE_STYLES } from "@/lib/roleStyles";
 import { Modal } from "./ui/Modal";
 import { Toggle } from "./ui/Toggle";
 import { NumberStepper } from "./ui/NumberStepper";
 import { Button } from "./ui/Button";
+import { Avatar } from "./ui/Avatar";
 
 interface DayEditorModalProps {
   dateISO: string;
@@ -26,6 +26,7 @@ export function DayEditorModal({ dateISO, employees, entries, rates, onClose, on
 
   const activeEmployees = employees.filter((e) => e.active);
   const total = dayTotal(employees, draft as Record<string, AttendanceValue>, rates);
+  const presentCount = activeEmployees.filter((e) => draft[e.id] !== undefined).length;
 
   function setValue(employeeId: string, value: AttendanceValue | undefined) {
     setDraft((prev) => {
@@ -56,54 +57,65 @@ export function DayEditorModal({ dateISO, employees, entries, rates, onClose, on
       open
       onOpenChange={(open) => !open && onClose()}
       title={formatDayLong(parseISO(dateISO))}
-      description="Cochez les employés présents et saisissez le nombre de scanners pour Nadjib."
+      description={`${presentCount} présent${presentCount > 1 ? "s" : ""} sur ${activeEmployees.length}`}
       footer={
         <>
+          <div className="mr-auto flex flex-col justify-center leading-tight">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">Total du jour</span>
+            <span className="font-mono text-base font-bold tabular-nums text-accent">{total.toLocaleString("fr-FR")} DA</span>
+          </div>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
             Annuler
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Enregistrement..." : "Enregistrer"}
+            {saving ? "Enregistrement…" : "Enregistrer"}
           </Button>
         </>
       }
     >
-      <div className="flex flex-col divide-y divide-border">
+      <ul className="-mx-2 flex flex-col">
         {activeEmployees.map((emp) => {
-          const style = ROLE_STYLES[emp.role];
           const value = draft[emp.id];
+          const identity = (
+            <span className="flex min-w-0 items-center gap-3">
+              <Avatar employee={emp} dimmed={value === undefined} />
+              <span className="min-w-0 text-left">
+                <span className="block truncate text-[15px] font-semibold leading-tight text-ink">{emp.name}</span>
+                <span className="block text-xs text-ink-soft">{ROLE_LABELS[emp.role]}</span>
+              </span>
+            </span>
+          );
+
           return (
-            <div key={emp.id} className="flex items-center justify-between gap-3 py-2.5">
-              <div className="flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-                <span className="text-sm font-medium text-text-primary">{emp.name}</span>
-              </div>
+            <li key={emp.id}>
               {emp.role === "manipulateur" ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-muted">scanners</span>
+                <div className="flex items-center justify-between gap-3 rounded-md px-2 py-2.5">
+                  {identity}
                   <NumberStepper
+                    label={`Scanners de ${emp.name}`}
                     value={typeof value === "number" ? value : 0}
                     onChange={(n) => setValue(emp.id, n > 0 ? n : undefined)}
                   />
                 </div>
               ) : (
-                <Toggle
-                  checked={value === true}
-                  onChange={(checked) => setValue(emp.id, checked ? true : undefined)}
-                  label={`Présence de ${emp.name}`}
-                />
+                // Toute la ligne est l'interrupteur: plus facile à toucher sur téléphone.
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={value === true}
+                  onClick={() => setValue(emp.id, value === true ? undefined : true)}
+                  className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-paper/70"
+                >
+                  {identity}
+                  <Toggle decorative checked={value === true} />
+                </button>
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
-      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
-
-      <div className="mt-4 flex items-center justify-between rounded-lg bg-primary-50 px-3 py-2.5">
-        <span className="text-sm font-medium text-primary-700">Total du jour</span>
-        <span className="text-base font-semibold text-primary-700">{total.toLocaleString("fr-FR")} DA</span>
-      </div>
+      {error && <p className="mt-3 rounded-md bg-danger-wash px-3 py-2 text-sm font-medium text-danger">{error}</p>}
     </Modal>
   );
 }

@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Employee, Role, ROLE_LABELS } from "@/lib/types";
+import { Employee, Role } from "@/lib/types";
 import { Modal } from "./ui/Modal";
 import { Button } from "./ui/Button";
+import { Select } from "./ui/Select";
+import { RoleBadge } from "./ui/RoleBadge";
+import { FIELD_LABEL, TEXT_INPUT } from "./ui/styles";
 
 interface EmployeeFormProps {
   employee: Employee | null; // null = création
@@ -38,46 +41,50 @@ export function EmployeeForm({ employee, onClose, onSubmit }: EmployeeFormProps)
     <Modal
       open
       onOpenChange={(open) => !open && onClose()}
-      title={employee ? "Modifier l'employé" : "Ajouter un employé"}
+      title={employee ? "Modifier l'employé" : "Nouvel employé"}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
             Annuler
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={saving}>
-            {saving ? "Enregistrement..." : "Enregistrer"}
+            {saving ? "Enregistrement…" : "Enregistrer"}
           </Button>
         </>
       }
     >
-      <div className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-text-primary">Nom</span>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <label className="flex flex-col gap-1.5">
+          <span className={FIELD_LABEL}>Nom</span>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="rounded-lg border border-border px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-            placeholder="Ex: Yasmine"
+            className={TEXT_INPUT}
+            placeholder="Ex : Yasmine"
             autoFocus
           />
         </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-text-primary">Rôle</span>
-          <select
+        <div className="flex flex-col gap-1.5">
+          <span className={FIELD_LABEL}>Rôle</span>
+          <Select
+            label="Rôle"
             value={role}
-            onChange={(e) => setRole(e.target.value as Role)}
-            className="rounded-lg border border-border bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-          >
-            {ROLES.map((r) => (
-              <option key={r} value={r}>
-                {ROLE_LABELS[r]}
-              </option>
-            ))}
-          </select>
-        </label>
-        {error && <p className="text-sm text-danger">{error}</p>}
-      </div>
+            onChange={setRole}
+            options={ROLES.map((r) => ({ value: r, label: <RoleBadge role={r} /> }))}
+          />
+          {role === "manipulateur" && (
+            <p className="text-xs text-ink-soft">Payé au nombre de scanners effectués, pas à la journée.</p>
+          )}
+        </div>
+        {error && <p className="rounded-md bg-danger-wash px-3 py-2 text-sm font-medium text-danger">{error}</p>}
+      </form>
     </Modal>
   );
 }

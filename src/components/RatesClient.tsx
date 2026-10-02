@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { Rates, ROLE_LABELS } from "@/lib/types";
-import { ROLE_STYLES } from "@/lib/roleStyles";
+import { Rates } from "@/lib/types";
 import { Button } from "./ui/Button";
+import { PageHeader } from "./ui/PageHeader";
+import { RoleBadge } from "./ui/RoleBadge";
 
 interface RatesClientProps {
   initialRates: Rates;
 }
 
-const FIELDS: { role: keyof Rates; unit: string }[] = [
-  { role: "technicien", unit: "par jour" },
-  { role: "receptionniste", unit: "par jour" },
-  { role: "manipulateur", unit: "par scanner" },
+const FIELDS: { role: keyof Rates; unit: string; hint: string }[] = [
+  { role: "technicien", unit: "par jour", hint: "Versé pour chaque jour de présence." },
+  { role: "receptionniste", unit: "par jour", hint: "Versé pour chaque jour de présence." },
+  { role: "manipulateur", unit: "par scanner", hint: "Multiplié par le nombre de scanners du jour." },
 ];
 
 export function RatesClient({ initialRates }: RatesClientProps) {
@@ -47,57 +48,65 @@ export function RatesClient({ initialRates }: RatesClientProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold text-text-primary">Tarifs</h1>
-      <div className="max-w-lg rounded-xl border border-border bg-surface p-5 shadow-sm">
-        <p className="mb-4 text-sm text-text-muted">
-          Montant payé par employé selon son rôle. Pour Nadjib (manipulateur), le montant est appliqué par scanner
-          effectué, pas par jour.
-        </p>
-        <div className="flex flex-col divide-y divide-border">
-          {FIELDS.map(({ role, unit }) => {
-            const style = ROLE_STYLES[role];
-            return (
-              <div key={role} className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">{ROLE_LABELS[role]}</p>
-                    <p className="text-xs text-text-muted">{unit}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    value={draft[role]}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
-                      setDraft((prev) => ({ ...prev, [role]: Number.isNaN(n) ? 0 : n }));
-                    }}
-                    className="w-24 rounded-lg border border-border px-3 py-1.5 text-right text-sm tabular-nums focus:border-primary-500 focus:outline-none"
-                  />
-                  <span className="text-sm text-text-muted">DA</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+    <>
+      <PageHeader eyebrow="Paie" title="Tarifs" />
 
-        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+      <p className="mb-5 max-w-xl text-sm leading-relaxed text-ink-soft">
+        Montant versé à chaque employé selon son rôle. Une modification s&apos;applique à tous les calculs, y compris les
+        mois passés.
+      </p>
 
-        <div className="mt-4 flex items-center gap-3">
-          <Button variant="primary" onClick={handleSave} disabled={!dirty || saving}>
-            {saving ? "Enregistrement..." : "Enregistrer"}
-          </Button>
-          {!dirty && savedAt && (
-            <span className="flex items-center gap-1 text-sm text-primary-700">
-              <Check size={14} /> Enregistré
-            </span>
-          )}
-        </div>
+      <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+        {FIELDS.map(({ role, unit, hint }) => {
+          const changed = draft[role] !== rates[role];
+          return (
+            <label
+              key={role}
+              className={`group flex cursor-text flex-col rounded-[10px] border bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-colors focus-within:border-accent ${
+                changed ? "border-accent/60" : "border-line hover:border-ink-faint/60"
+              }`}
+            >
+              <span className="flex items-center justify-between">
+                <RoleBadge role={role} />
+                <span className="text-xs font-medium text-ink-soft">{unit}</span>
+              </span>
+              <span className="mt-4 flex items-baseline gap-2">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={draft[role]}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    setDraft((prev) => ({ ...prev, [role]: Number.isNaN(n) ? 0 : n }));
+                  }}
+                  className="w-full min-w-0 bg-transparent font-mono text-[32px] font-semibold tabular-nums leading-none text-ink outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="font-mono text-sm font-semibold text-ink-soft">DA</span>
+              </span>
+              <span className="mt-3 border-t border-dashed border-line pt-2.5 text-xs text-ink-soft">{hint}</span>
+            </label>
+          );
+        })}
       </div>
-    </div>
+
+      {error && <p className="mt-4 rounded-md bg-danger-wash px-3 py-2 text-sm font-medium text-danger">{error}</p>}
+
+      <div className="mt-5 flex items-center gap-3">
+        <Button variant="primary" onClick={handleSave} disabled={!dirty || saving}>
+          {saving ? "Enregistrement…" : "Enregistrer les tarifs"}
+        </Button>
+        {dirty && (
+          <Button variant="ghost" onClick={() => setDraft(rates)} disabled={saving}>
+            Annuler
+          </Button>
+        )}
+        {!dirty && savedAt && (
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-success">
+            <Check size={15} strokeWidth={2.6} /> Enregistré
+          </span>
+        )}
+      </div>
+    </>
   );
 }

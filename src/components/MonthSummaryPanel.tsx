@@ -6,48 +6,54 @@ interface MonthSummaryPanelProps {
   employees: Employee[];
   attendance: AttendanceStore;
   monthKey: string;
+  monthLabel: string;
   rates: Rates;
 }
 
-export function MonthSummaryPanel({ employees, attendance, monthKey, rates }: MonthSummaryPanelProps) {
+const formatDA = (n: number) => n.toLocaleString("fr-FR");
+
+/** Récapitulatif présenté comme une fiche de paie: lignes à points de conduite, total souligné double. */
+export function MonthSummaryPanel({ employees, attendance, monthKey, monthLabel, rates }: MonthSummaryPanelProps) {
   const { perEmployee, grandTotal } = monthlyTotals(employees, attendance, monthKey, rates);
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
-      <h3 className="mb-3 text-sm font-semibold text-text-primary">Récapitulatif du mois</h3>
-      <div className="flex flex-col divide-y divide-border">
+    <section className="rounded-[10px] border border-line bg-surface shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
+      <header className="border-b border-dashed border-line px-5 pb-3 pt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-soft">Fiche de paie</p>
+        <h2 className="font-display text-2xl leading-tight text-ink first-letter:uppercase">{monthLabel}</h2>
+      </header>
+
+      <ul className="px-5 py-2">
         {perEmployee.map(({ employee, count, total }) => {
-          const style = ROLE_STYLES[employee.role];
           const unit = employee.role === "manipulateur" ? "scanner" : "jour";
           return (
-            <div key={employee.id} className="flex items-center justify-between gap-2 py-2.5">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className={`h-2 w-2 shrink-0 rounded-full ${style.dot}`} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-text-primary">
-                    {employee.name}
-                    {!employee.active && <span className="ml-1 text-xs text-text-muted">(inactif)</span>}
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    {count} {unit}
-                    {count > 1 ? "s" : ""}
-                  </p>
-                </div>
+            <li key={employee.id} className="flex items-end gap-2 py-2">
+              <div className="min-w-0">
+                <p className={`truncate border-l-2 pl-2 text-sm font-semibold leading-tight text-ink ${ROLE_STYLES[employee.role].border}`}>
+                  {employee.name}
+                  {!employee.active && <span className="ml-1.5 text-xs font-normal text-ink-faint">inactif</span>}
+                </p>
+                <p className="pl-2.5 font-mono text-[11px] text-ink-soft">
+                  {count} {unit}
+                  {count > 1 ? "s" : ""}
+                </p>
               </div>
-              <span className="shrink-0 text-sm font-semibold text-text-primary">
-                {total.toLocaleString("fr-FR")} DA
+              <span className="mb-1.5 min-w-4 flex-1 border-b border-dotted border-ink-faint/50" />
+              <span className={`font-mono text-sm tabular-nums ${total > 0 ? "text-ink" : "text-ink-faint"}`}>
+                {formatDA(total)}
               </span>
-            </div>
+            </li>
           );
         })}
-        {perEmployee.length === 0 && (
-          <p className="py-4 text-center text-sm text-text-muted">Aucune donnée ce mois-ci.</p>
-        )}
-      </div>
-      <div className="mt-3 flex items-center justify-between rounded-lg bg-primary-600 px-3 py-2.5">
-        <span className="text-sm font-medium text-white">Total général</span>
-        <span className="text-base font-semibold text-white">{grandTotal.toLocaleString("fr-FR")} DA</span>
-      </div>
-    </div>
+        {perEmployee.length === 0 && <li className="py-4 text-sm text-ink-soft">Aucune donnée ce mois-ci.</li>}
+      </ul>
+
+      <footer className="mx-5 flex items-baseline justify-between border-t-[3px] border-double border-ink/80 pb-4 pt-3">
+        <span className="font-display text-xl text-ink">Total à verser</span>
+        <span className="font-mono text-lg font-bold tabular-nums text-accent">
+          {formatDA(grandTotal)} <span className="text-xs font-semibold text-ink-soft">DA</span>
+        </span>
+      </footer>
+    </section>
   );
 }

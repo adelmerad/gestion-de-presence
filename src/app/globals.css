@@ -1,77 +1,118 @@
 @import "tailwindcss";
 
+/*
+ * Palette: un vert "blouse de bloc" profond comme accent (clinique + paie),
+ * posé sur un gris-vert froid. Aucune couleur en dur dans les composants:
+ * tout passe par ces variables.
+ */
 :root {
-  --color-bg: #f8fafc;
-  --color-surface: #ffffff;
-  --color-border: #e2e8f0;
-  --color-text-primary: #1e293b;
-  --color-text-muted: #64748b;
+  --ink: #13201e; /* texte principal, barre latérale */
+  --ink-soft: #52615d; /* texte secondaire */
+  --ink-faint: #8a9894; /* indications, jours hors mois */
+  --paper: #eaeeeb; /* fond de l'application */
+  --surface: #ffffff; /* panneaux */
+  --line: #d3dbd7; /* bordures, séparateurs */
 
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
+  --accent: #0b6e5f;
+  --accent-strong: #07574b;
+  --accent-wash: #dfeee9;
 
-  --color-tech-bg: #dbeafe;
-  --color-tech-text: #1d4ed8;
-  --color-tech-dot: #3b82f6;
+  --success: #2e7d4f;
+  --warning: #b7791f;
+  --danger: #b42335;
+  --danger-wash: #f8e4e6;
 
-  --color-recep-bg: #cffafe;
-  --color-recep-text: #0e7490;
-  --color-recep-dot: #06b6d4;
-
-  --color-manip-bg: #fef3c7;
-  --color-manip-text: #92400e;
-  --color-manip-dot: #f59e0b;
-
-  --color-repos-bg: #f1f5f9;
-  --color-repos-text: #94a3b8;
-  --color-repos-badge-bg: #e2e8f0;
-  --color-repos-badge-text: #64748b;
-
-  --color-danger: #dc2626;
+  /* Rôles */
+  --tech: #3d5ba6;
+  --tech-wash: #e5e9f5;
+  --recep: #96477a;
+  --recep-wash: #f3e5ee;
+  --manip: #b26d0e;
+  --manip-wash: #f8ecd8;
 }
 
 @theme inline {
-  --color-bg: var(--color-bg);
-  --color-surface: var(--color-surface);
-  --color-border: var(--color-border);
-  --color-text-primary: var(--color-text-primary);
-  --color-text-muted: var(--color-text-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-wash: var(--accent-wash);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-wash: var(--danger-wash);
+  --color-tech: var(--tech);
+  --color-tech-wash: var(--tech-wash);
+  --color-recep: var(--recep);
+  --color-recep-wash: var(--recep-wash);
+  --color-manip: var(--manip);
+  --color-manip-wash: var(--manip-wash);
 
-  --color-primary-50: var(--color-primary-50);
-  --color-primary-100: var(--color-primary-100);
-  --color-primary-500: var(--color-primary-500);
-  --color-primary-600: var(--color-primary-600);
-  --color-primary-700: var(--color-primary-700);
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+  --font-sans: var(--font-hanken), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
-  --color-tech-bg: var(--color-tech-bg);
-  --color-tech-text: var(--color-tech-text);
-  --color-tech-dot: var(--color-tech-dot);
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-sheet-up: sheet-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-menu-in: menu-in 140ms ease-out;
+}
 
-  --color-recep-bg: var(--color-recep-bg);
-  --color-recep-text: var(--color-recep-text);
-  --color-recep-dot: var(--color-recep-dot);
-
-  --color-manip-bg: var(--color-manip-bg);
-  --color-manip-text: var(--color-manip-text);
-  --color-manip-dot: var(--color-manip-dot);
-
-  --color-repos-bg: var(--color-repos-bg);
-  --color-repos-text: var(--color-repos-text);
-  --color-repos-badge-bg: var(--color-repos-badge-bg);
-  --color-repos-badge-text: var(--color-repos-badge-text);
-
-  --color-danger: var(--color-danger);
-
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--menu-shift, -4px)) scale(0.98);
+  }
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text-primary);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+}
+
+/* Focus clavier visible partout, à la couleur de l'accent. Dans la couche
+   "base" pour que les champs puissent le remplacer par leur propre style. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Les menus s'ouvrent depuis le côté où Radix les a placés. */
+[data-side="top"] {
+  --menu-shift: 4px;
+}
+
+/* Hachures des jours de repos. */
+.hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--line) 70%, transparent) 6px 7px
+  );
 }
 
 /* Sur téléphone, un champ < 16px fait zoomer l'iPhone à chaque saisie. */

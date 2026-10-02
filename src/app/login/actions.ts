@@ -21,3 +21,8 @@ export async function login(_prev: string | null, formData: FormData): Promise<s
   });
   redirect("/");
 }
+
+export async function logout(): Promise<void> {
+  (await cookies()).delete(SESSION_COOKIE);
+  redirect("/login");
+}

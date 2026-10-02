@@ -1,7 +1,8 @@
 import { Role } from "./types";
 
-export const ROLE_STYLES: Record<Role, { bg: string; text: string; dot: string; ring?: string }> = {
-  technicien: { bg: "bg-tech-bg", text: "text-tech-text", dot: "bg-tech-dot" },
-  receptionniste: { bg: "bg-recep-bg", text: "text-recep-text", dot: "bg-recep-dot" },
-  manipulateur: { bg: "bg-manip-bg", text: "text-manip-text", dot: "bg-manip-dot", ring: "ring-2 ring-amber-400" },
+/** Classes Tailwind par rôle, toutes basées sur les variables de globals.css. */
+export const ROLE_STYLES: Record<Role, { text: string; wash: string; dot: string; border: string }> = {
+  technicien: { text: "text-tech", wash: "bg-tech-wash", dot: "bg-tech", border: "border-tech" },
+  receptionniste: { text: "text-recep", wash: "bg-recep-wash", dot: "bg-recep", border: "border-recep" },
+  manipulateur: { text: "text-manip", wash: "bg-manip-wash", dot: "bg-manip", border: "border-manip" },
 };
