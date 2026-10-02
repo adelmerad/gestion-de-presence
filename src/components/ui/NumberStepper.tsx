@@ -6,18 +6,22 @@ interface NumberStepperProps {
   min?: number;
   max?: number;
   disabled?: boolean;
+  label?: string;
 }
 
-export function NumberStepper({ value, onChange, min = 0, max = 99, disabled }: NumberStepperProps) {
+const STEP_BUTTON =
+  "flex h-full w-9 items-center justify-center text-ink-soft transition-colors hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent";
+
+export function NumberStepper({ value, onChange, min = 0, max = 99, disabled, label }: NumberStepperProps) {
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex h-9 items-stretch overflow-hidden rounded-md border border-line bg-surface focus-within:border-accent">
       <button
         type="button"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
-        className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-white text-text-muted transition-colors hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40"
+        className={STEP_BUTTON}
         aria-label="Diminuer"
       >
         <Minus size={14} />
@@ -25,6 +29,7 @@ export function NumberStepper({ value, onChange, min = 0, max = 99, disabled }: 
       <input
         type="number"
         inputMode="numeric"
+        aria-label={label}
         value={value}
         disabled={disabled}
         min={min}
@@ -33,13 +38,13 @@ export function NumberStepper({ value, onChange, min = 0, max = 99, disabled }: 
           const n = Number(e.target.value);
           if (!Number.isNaN(n)) onChange(clamp(n));
         }}
-        className="w-10 rounded-md border border-border bg-white py-1 text-center text-sm tabular-nums focus:border-primary-500 focus:outline-none disabled:opacity-40"
+        className="w-10 border-x border-line bg-transparent text-center font-mono text-sm tabular-nums outline-none [appearance:textfield] disabled:opacity-40 [&::-webkit-inner-spin-button]:appearance-none"
       />
       <button
         type="button"
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}
-        className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-white text-text-muted transition-colors hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40"
+        className={STEP_BUTTON}
         aria-label="Augmenter"
       >
         <Plus size={14} />

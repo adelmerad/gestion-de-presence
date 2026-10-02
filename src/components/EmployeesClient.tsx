@@ -1,20 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil } from "lucide-react";
-import { Employee, Role, ROLE_LABELS } from "@/lib/types";
-import { ROLE_STYLES } from "@/lib/roleStyles";
+import { MoreHorizontal, Pencil, Plus, RotateCcw, UserMinus } from "lucide-react";
+import { Employee, Role } from "@/lib/types";
 import { Button } from "./ui/Button";
+import { Modal } from "./ui/Modal";
+import { Menu, MenuItem, MenuSeparator } from "./ui/Menu";
+import { Avatar } from "./ui/Avatar";
+import { PageHeader } from "./ui/PageHeader";
+import { RoleBadge, StatusBadge } from "./ui/RoleBadge";
 import { EmployeeForm } from "./EmployeeForm";
 
 interface EmployeesClientProps {
   initialEmployees: Employee[];
 }
 
+const COLUMNS = "md:grid md:grid-cols-[minmax(0,1fr)_11rem_7rem_2.5rem] md:items-center md:gap-4";
+
 export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [formTarget, setFormTarget] = useState<Employee | null | "new">(null);
+  const [confirmTarget, setConfirmTarget] = useState<Employee | null>(null);
   const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
+
+  const activeCount = employees.filter((e) => e.active).length;
 
   async function handleCreate(data: { name: string; role: Role }) {
     const res = await fetch("/api/employees", {
@@ -40,86 +49,92 @@ export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
     setFormTarget(null);
   }
 
-  async function handleToggleActive(employee: Employee) {
-    if (
-      employee.active &&
-      !window.confirm(
-        `Désactiver ${employee.name} ? Il/elle n'apparaîtra plus dans le calendrier, mais son historique de paie sera conservé.`,
-      )
-    ) {
-      return;
-    }
+  async function setActive(employee: Employee, active: boolean) {
     setPendingToggleId(employee.id);
     try {
       const res = await fetch(`/api/employees/${employee.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !employee.active }),
+        body: JSON.stringify({ active }),
       });
-      if (!res.ok) throw new Error("toggle failed");
+      if (!res.ok) return;
       const updated: Employee = await res.json();
       setEmployees((prev) => prev.map((e) => (e.id === employee.id ? updated : e)));
     } finally {
       setPendingToggleId(null);
+      setConfirmTarget(null);
     }
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-text-primary">Employés</h1>
-        <Button onClick={() => setFormTarget("new")}>
-          <Plus size={16} />
-          Ajouter un employé
-        </Button>
-      </div>
+    <>
+      <PageHeader
+        eyebrow={`Équipe · ${activeCount} actif${activeCount > 1 ? "s" : ""}`}
+        title="Employés"
+        actions={
+          <Button onClick={() => setFormTarget("new")}>
+            <Plus size={16} strokeWidth={2.4} />
+            Ajouter
+          </Button>
+        }
+      />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-bg text-left text-xs font-medium text-text-muted">
-              <th className="px-3 py-2.5 sm:px-4">Nom</th>
-              <th className="px-3 py-2.5 sm:px-4">Rôle</th>
-              <th className="hidden px-4 py-2.5 sm:table-cell">Statut</th>
-              <th className="px-3 py-2.5 text-right sm:px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {employees.map((emp) => {
-              const style = ROLE_STYLES[emp.role];
-              return (
-                <tr key={emp.id} className={emp.active ? "" : "opacity-50"}>
-                  <td className="px-3 py-3 font-medium text-text-primary sm:px-4">{emp.name}</td>
-                  <td className="px-3 py-3 sm:px-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-1.5 py-1.5 text-xs font-medium sm:px-2 sm:py-0.5 ${style.bg} ${style.text}`}
-                      title={ROLE_LABELS[emp.role]}
-                    >
-                      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-                      <span className="hidden sm:inline">{ROLE_LABELS[emp.role]}</span>
-                    </span>
-                  </td>
-                  <td className="hidden px-4 py-3 text-text-muted sm:table-cell">{emp.active ? "Actif" : "Inactif"}</td>
-                  <td className="px-3 py-3 sm:px-4">
-                    <div className="flex justify-end gap-1 sm:gap-2">
-                      <Button variant="ghost" onClick={() => setFormTarget(emp)} aria-label="Modifier">
-                        <Pencil size={14} />
-                        <span className="hidden sm:inline">Modifier</span>
-                      </Button>
-                      <Button
-                        variant={emp.active ? "danger" : "secondary"}
-                        disabled={pendingToggleId === emp.id}
-                        onClick={() => handleToggleActive(emp)}
-                      >
-                        {emp.active ? "Désactiver" : "Réactiver"}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="overflow-hidden rounded-[10px] border border-line bg-surface shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
+        <div className={`hidden border-b border-line bg-paper/50 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft ${COLUMNS}`}>
+          <span>Nom</span>
+          <span>Rôle</span>
+          <span>Statut</span>
+          <span />
+        </div>
+        <ul className="divide-y divide-line">
+          {employees.map((emp) => (
+            <li
+              key={emp.id}
+              className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-paper/40 md:px-5 ${COLUMNS} ${
+                pendingToggleId === emp.id ? "opacity-50" : ""
+              }`}
+            >
+              <div className={`flex min-w-0 flex-1 items-center gap-3 ${emp.active ? "" : "opacity-55"}`}>
+                <Avatar employee={emp} />
+                <div className="min-w-0">
+                  <p className="truncate text-[15px] font-semibold text-ink">{emp.name}</p>
+                  {/* Téléphone: rôle et statut sous le nom. */}
+                  <div className="mt-1 flex items-center gap-2.5 md:hidden">
+                    <RoleBadge role={emp.role} />
+                    {!emp.active && <StatusBadge active={false} />}
+                  </div>
+                </div>
+              </div>
+              <div className={`hidden md:block ${emp.active ? "" : "opacity-55"}`}>
+                <RoleBadge role={emp.role} />
+              </div>
+              <div className="hidden md:block">
+                <StatusBadge active={emp.active} />
+              </div>
+              <Menu
+                trigger={
+                  <Button variant="ghost" size="icon" aria-label={`Actions pour ${emp.name}`}>
+                    <MoreHorizontal size={18} />
+                  </Button>
+                }
+              >
+                <MenuItem icon={<Pencil size={15} />} onSelect={() => setFormTarget(emp)}>
+                  Modifier
+                </MenuItem>
+                <MenuSeparator />
+                {emp.active ? (
+                  <MenuItem tone="danger" icon={<UserMinus size={15} />} onSelect={() => setConfirmTarget(emp)}>
+                    Désactiver
+                  </MenuItem>
+                ) : (
+                  <MenuItem icon={<RotateCcw size={15} />} onSelect={() => setActive(emp, true)}>
+                    Réactiver
+                  </MenuItem>
+                )}
+              </Menu>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {formTarget === "new" && (
@@ -132,6 +147,33 @@ export function EmployeesClient({ initialEmployees }: EmployeesClientProps) {
           onSubmit={(data) => handleUpdate(formTarget.id, data)}
         />
       )}
-    </div>
+
+      {confirmTarget && (
+        <Modal
+          open
+          onOpenChange={(open) => !open && setConfirmTarget(null)}
+          title={`Désactiver ${confirmTarget.name} ?`}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setConfirmTarget(null)}>
+                Annuler
+              </Button>
+              <Button
+                variant="danger"
+                disabled={pendingToggleId === confirmTarget.id}
+                onClick={() => setActive(confirmTarget, false)}
+              >
+                Désactiver
+              </Button>
+            </>
+          }
+        >
+          <p className="text-sm leading-relaxed text-ink-soft">
+            {confirmTarget.name} n&apos;apparaîtra plus dans le calendrier. Son historique de paie est conservé, et vous
+            pourrez le/la réactiver à tout moment.
+          </p>
+        </Modal>
+      )}
+    </>
   );
 }

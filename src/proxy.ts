@@ -14,5 +14,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Tout est protégé sauf la page de connexion et les fichiers statiques.
-  matcher: ["/((?!login|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|logo.png|manifest.webmanifest).*)"],
+  matcher: ["/((?!login|_next/static|_next/image|favicon.ico|icon.svg|icon-192.png|icon-512.png|apple-icon.png|manifest.webmanifest).*)"],
 };

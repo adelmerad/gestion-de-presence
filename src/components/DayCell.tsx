@@ -1,7 +1,7 @@
-import { AttendanceDay, Employee } from "@/lib/types";
+import { AttendanceDay, AttendanceValue, Employee, Rates } from "@/lib/types";
 import { isSameMonth, isToday } from "@/lib/dates";
+import { dayTotal } from "@/lib/payroll";
 import { ROLE_STYLES } from "@/lib/roleStyles";
-import { Chip } from "./Chip";
 
 interface DayCellProps {
   date: Date;
@@ -9,64 +9,93 @@ interface DayCellProps {
   isFridayCell: boolean;
   entries: AttendanceDay | undefined;
   employees: Employee[];
+  rates: Rates;
   onClick: () => void;
 }
 
-export function DayCell({ date, monthDate, isFridayCell, entries, employees, onClick }: DayCellProps) {
+const CELL = "relative flex h-[68px] flex-col p-1.5 sm:h-[118px] sm:p-2";
+
+function DayNumber({ day, today, muted }: { day: number; today: boolean; muted: boolean }) {
+  // Aujourd'hui: le numéro est entouré d'un anneau, comme celui du symbole.
+  return (
+    <span
+      className={`flex h-6 w-6 items-center justify-center font-mono text-xs ${
+        today
+          ? "rounded-full border-2 border-accent font-bold text-accent"
+          : muted
+            ? "text-ink-faint"
+            : "font-medium text-ink"
+      }`}
+    >
+      {day}
+    </span>
+  );
+}
+
+export function DayCell({ date, monthDate, isFridayCell, entries, employees, rates, onClick }: DayCellProps) {
   const inCurrentMonth = isSameMonth(date, monthDate);
   const today = isToday(date);
   const dayNumber = date.getDate();
 
-  const present = employees.filter((e) => entries?.[e.id] !== undefined);
-
   if (isFridayCell) {
     return (
-      <div
-        className={`flex h-16 flex-col rounded-lg border border-border bg-repos-bg p-1 sm:h-28 sm:p-1.5 ${
-          inCurrentMonth ? "" : "opacity-40"
-        }`}
-        aria-label="Repos"
-      >
-        <span className="text-xs font-medium text-repos-text">{dayNumber}</span>
-        <div className="mt-auto flex justify-center">
-          <span className="rounded-full bg-repos-badge-bg px-1 py-0.5 text-[9px] sm:px-2 sm:text-[11px] font-medium text-repos-badge-text">
-            Repos
-          </span>
-        </div>
+      <div className={`${CELL} hatch bg-paper/70 ${inCurrentMonth ? "" : "opacity-50"}`} aria-label="Repos">
+        <DayNumber day={dayNumber} today={today} muted />
+        <span className="mt-auto hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint sm:block">
+          Repos
+        </span>
       </div>
     );
   }
+
+  const present = employees.filter((e) => entries?.[e.id] !== undefined);
+  const total = entries ? dayTotal(employees, entries as Record<string, AttendanceValue>, rates) : 0;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex h-16 flex-col gap-1 rounded-lg border bg-surface p-1 text-left sm:h-28 sm:p-1.5 transition-colors hover:border-primary-300 hover:bg-primary-50 ${
-        today ? "border-primary-500 ring-1 ring-primary-500" : "border-border"
-      } ${inCurrentMonth ? "" : "opacity-40"}`}
+      className={`${CELL} group text-left transition-colors focus-visible:z-10 focus-visible:outline-offset-[-2px] ${
+        inCurrentMonth ? "bg-surface hover:bg-accent-wash/60" : "bg-paper/60 hover:bg-paper"
+      }`}
     >
-      <span className={`text-xs font-medium ${today ? "text-primary-700" : "text-text-primary"}`}>{dayNumber}</span>
-      {/* Téléphone: cases trop étroites pour les noms, une pastille par présent. */}
-      <div className="flex flex-wrap items-center gap-0.5 sm:hidden">
+      <DayNumber day={dayNumber} today={today} muted={!inCurrentMonth} />
+
+      {/* Téléphone: une pastille par présent (le chiffre = scanners de Nadjib). */}
+      <div className={`mt-1 flex flex-wrap content-start gap-[3px] sm:hidden ${inCurrentMonth ? "" : "opacity-50"}`}>
         {present.map((emp) => {
           const value = entries?.[emp.id];
+          const style = ROLE_STYLES[emp.role];
           return typeof value === "number" ? (
-            <span key={emp.id} className={`rounded-full px-1 text-[9px] font-semibold leading-3 ${ROLE_STYLES[emp.role].bg} ${ROLE_STYLES[emp.role].text}`}>
+            <span key={emp.id} className={`rounded-full px-1 font-mono text-[9px] font-bold leading-[12px] ${style.wash} ${style.text}`}>
               {value}
             </span>
           ) : (
-            <span key={emp.id} className={`h-2 w-2 rounded-full ${ROLE_STYLES[emp.role].dot}`} />
+            <span key={emp.id} className={`mt-[2px] h-2 w-2 rounded-full ${style.dot}`} />
           );
         })}
       </div>
-      <div className="hidden flex-1 flex-col gap-0.5 overflow-hidden sm:flex">
-        {present.slice(0, 3).map((emp) => (
-          <Chip key={emp.id} employee={emp} scans={typeof entries?.[emp.id] === "number" ? (entries?.[emp.id] as number) : undefined} />
-        ))}
-        {present.length > 3 && (
-          <span className="text-[11px] font-medium text-text-muted">+{present.length - 3}</span>
-        )}
+
+      {/* Ordinateur: les noms, avec un trait à la couleur du rôle. */}
+      <div className={`mt-1 hidden min-h-0 flex-1 flex-col gap-[3px] overflow-hidden sm:flex ${inCurrentMonth ? "" : "opacity-50"}`}>
+        {present.slice(0, 3).map((emp) => {
+          const value = entries?.[emp.id];
+          const style = ROLE_STYLES[emp.role];
+          return (
+            <span key={emp.id} className={`flex items-center gap-1 truncate border-l-2 pl-1.5 text-[11.5px] font-medium leading-[15px] text-ink ${style.border}`}>
+              <span className="truncate">{emp.name}</span>
+              {typeof value === "number" && <span className={`font-mono text-[10px] font-bold ${style.text}`}>×{value}</span>}
+            </span>
+          );
+        })}
+        {present.length > 3 && <span className="pl-2 text-[11px] font-semibold text-ink-soft">+{present.length - 3}</span>}
       </div>
+
+      {total > 0 && (
+        <span className="absolute bottom-1.5 right-2 hidden font-mono text-[10px] text-ink-faint transition-colors group-hover:text-accent sm:block">
+          {total.toLocaleString("fr-FR")}
+        </span>
+      )}
     </button>
   );
 }
