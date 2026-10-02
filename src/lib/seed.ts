@@ -14,4 +14,5 @@ export const SEED_RATES: Rates = {
   receptionniste: 1000,
   manipulateur: 1000,
   menage: 1000,
+  scanBonus: 1000,
 };

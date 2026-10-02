@@ -7,6 +7,10 @@ export const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur", "m
 export const DOCTOR_ROLES: Role[] = ["chef", "medecin"];
 export const isDoctor = (role: Role) => DOCTOR_ROLES.includes(role);
 
+/** Rôles payés à la journée qui peuvent faire des scanners en plus (payés en bonus). */
+export const SCAN_BONUS_ROLES: Role[] = ["technicien", "receptionniste"];
+export const canDoBonusScans = (role: Role) => SCAN_BONUS_ROLES.includes(role);
+
 export interface Employee {
   id: string;
   name: string;
@@ -16,7 +20,9 @@ export interface Employee {
 
 /**
  * Valeur d'un employé pour un jour (clé absente = absent):
- * - technicien, receptionniste, menage, chef: `true` = présent.
+ * - menage, chef: `true` = présent.
+ * - technicien, receptionniste: `true` = présent; un nombre = présent ET ce
+ *   nombre de scanners faits en plus (payés au tarif "scanBonus").
  * - manipulateur: nombre de scanners effectués.
  * - medecin (remplaçant): montant versé ce jour-là, en DA, saisi à la main.
  */
@@ -44,7 +50,9 @@ export type RatedRole = "technicien" | "receptionniste" | "manipulateur" | "mena
 export const RATED_ROLES: RatedRole[] = ["technicien", "receptionniste", "manipulateur", "menage"];
 
 /**
- * Tarif par rôle, en DA: montant par jour de présence, sauf manipulateur
- * (montant par scanner effectué).
+ * Tarifs en DA: montant par jour de présence pour chaque rôle, sauf
+ * manipulateur (par scanner). scanBonus: montant par scanner fait en plus
+ * par un(e) technicien(ne) ou réceptionniste.
  */
-export type Rates = Record<RatedRole, number>;
+export type RateKey = RatedRole | "scanBonus";
+export type Rates = Record<RateKey, number>;

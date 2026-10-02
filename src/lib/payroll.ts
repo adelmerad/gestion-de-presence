@@ -1,4 +1,4 @@
-import { AttendanceStore, AttendanceValue, Employee, Rates } from "./types";
+import { AttendanceStore, AttendanceValue, canDoBonusScans, Employee, Rates } from "./types";
 
 export function dailyPay(role: Employee["role"], value: AttendanceValue | undefined, rates: Rates): number {
   if (value === undefined) return 0;
@@ -10,7 +10,11 @@ export function dailyPay(role: Employee["role"], value: AttendanceValue | undefi
     case "manipulateur":
       return typeof value === "number" ? value * rates.manipulateur : 0;
     default:
-      return value === true ? rates[role] : 0;
+      // Présent (true), ou présent avec des scanners en plus (nombre).
+      if (typeof value === "number") {
+        return canDoBonusScans(role) ? rates[role] + value * rates.scanBonus : rates[role];
+      }
+      return rates[role];
   }
 }
 
@@ -23,9 +27,17 @@ export function dailyCount(role: Employee["role"], value: AttendanceValue | unde
   return 1;
 }
 
+/** Scanners faits ce jour-là: ceux du manipulateur, ou faits en plus par un autre employé. */
+export function dailyScans(role: Employee["role"], value: AttendanceValue | undefined): number {
+  if (typeof value !== "number") return 0;
+  return role === "manipulateur" || canDoBonusScans(role) ? value : 0;
+}
+
 export interface EmployeeMonthTotal {
   employee: Employee;
   count: number;
+  /** Scanners faits en plus (hors manipulateur, dont count est déjà le nombre de scanners). */
+  bonusScans: number;
   total: number;
 }
 
@@ -57,13 +69,15 @@ export function monthlyTotals(
 
   const perEmployee: EmployeeMonthTotal[] = relevantEmployees.map((employee) => {
     let count = 0;
+    let bonusScans = 0;
     let total = 0;
     for (const date of datesInMonth) {
       const value = store[date][employee.id];
       count += dailyCount(employee.role, value);
+      if (employee.role !== "manipulateur") bonusScans += dailyScans(employee.role, value);
       total += dailyPay(employee.role, value, rates);
     }
-    return { employee, count, total };
+    return { employee, count, bonusScans, total };
   });
 
   const grandTotal = perEmployee.reduce((sum, e) => sum + e.total, 0);

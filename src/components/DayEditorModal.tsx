@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
-import { AttendanceDay, AttendanceValue, Employee, isDoctor, Rates, ROLE_LABELS } from "@/lib/types";
+import { Check, Plus } from "lucide-react";
+import { AttendanceDay, AttendanceValue, canDoBonusScans, Employee, isDoctor, Rates, ROLE_LABELS } from "@/lib/types";
 import { dayTotal } from "@/lib/payroll";
 import { formatDayLong, parseISO } from "@/lib/dates";
 import { Modal } from "./ui/Modal";
@@ -182,17 +182,47 @@ export function DayEditorModal({ dateISO, employees, entries, rates, onClose, on
                     />
                   </div>
                 ) : (
-                  // Toute la ligne est l'interrupteur: plus facile à toucher sur téléphone.
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={value === true}
-                    onClick={() => setValue(emp.id, value === true ? undefined : true)}
-                    className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-paper/70"
-                  >
-                    <Identity employee={emp} dimmed={value === undefined} />
-                    <Toggle decorative checked={value === true} />
-                  </button>
+                  <>
+                    {/* Toute la ligne est l'interrupteur: plus facile à toucher sur téléphone. */}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={value !== undefined}
+                      onClick={() => setValue(emp.id, value === undefined ? true : undefined)}
+                      className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-paper/70"
+                    >
+                      <Identity employee={emp} dimmed={value === undefined} />
+                      <Toggle decorative checked={value !== undefined} />
+                    </button>
+                    {value !== undefined && canDoBonusScans(emp.role) && (
+                      <div className="-mt-1 flex items-center justify-between gap-3 pb-2 pl-14 pr-2">
+                        {typeof value === "number" ? (
+                          <>
+                            <span className="text-[13px] font-semibold text-manip">
+                              Scanners en plus
+                              <span className="ml-1.5 font-mono text-xs font-normal text-ink-soft">
+                                +{(value * rates.scanBonus).toLocaleString("fr-FR")} DA
+                              </span>
+                            </span>
+                            <NumberStepper
+                              label={`Scanners faits en plus par ${emp.name}`}
+                              value={value}
+                              onChange={(n) => setValue(emp.id, n > 0 ? n : true)}
+                            />
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setValue(emp.id, 1)}
+                            className="-ml-2 flex items-center gap-1 rounded-md px-2 py-1 text-[13px] font-semibold text-ink-soft transition-colors hover:bg-manip-wash hover:text-manip"
+                          >
+                            <Plus size={14} strokeWidth={2.4} />
+                            Scanners en plus
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </li>
             );

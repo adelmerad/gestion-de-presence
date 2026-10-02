@@ -64,12 +64,12 @@ export function DayCell({ date, monthDate, isFridayCell, entries, employees, rat
     >
       <DayNumber day={dayNumber} today={today} muted={!inCurrentMonth} />
 
-      {/* Téléphone: une pastille par présent (le chiffre = scanners de Nadjib). */}
+      {/* Téléphone: une pastille par présent (le chiffre = nombre de scanners). */}
       <div className={`mt-1 flex flex-wrap content-start gap-[3px] sm:hidden ${inCurrentMonth ? "" : "opacity-50"}`}>
         {present.map((emp) => {
           const value = entries?.[emp.id];
           const style = ROLE_STYLES[emp.role];
-          return emp.role === "manipulateur" && typeof value === "number" ? (
+          return emp.role !== "medecin" && typeof value === "number" ? (
             <span key={emp.id} className={`rounded-full px-1 font-mono text-[9px] font-bold leading-[12px] ${style.wash} ${style.text}`}>
               {value}
             </span>
@@ -87,7 +87,7 @@ export function DayCell({ date, monthDate, isFridayCell, entries, employees, rat
           return (
             <span key={emp.id} className={`flex items-center gap-1 truncate border-l-2 pl-1.5 text-[11.5px] font-medium leading-[15px] text-ink ${style.border}`}>
               <span className="truncate">{emp.name}</span>
-              {emp.role === "manipulateur" && typeof value === "number" && <span className={`font-mono text-[10px] font-bold ${style.text}`}>×{value}</span>}
+              {emp.role !== "medecin" && typeof value === "number" && <span className={`font-mono text-[10px] font-bold ${style.text}`}>×{value}</span>}
             </span>
           );
         })}
