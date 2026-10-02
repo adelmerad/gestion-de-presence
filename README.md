@@ -90,3 +90,7 @@ node --env-file=.env.local scripts/migrate-to-redis.mjs
 1. Importer le dépôt GitHub dans Vercel.
 2. Créer une base Redis gratuite sur Upstash et renseigner les trois variables ci-dessus dans Vercel.
 3. Déployer. Chaque envoi sur la branche `main` redéploie ensuite automatiquement.
+
+## Licence
+
+Projet privé — tous droits réservés. Le code est consultable, mais sa copie, sa modification ou sa réutilisation ne sont pas autorisées sans accord préalable.
