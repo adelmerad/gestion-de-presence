@@ -1,6 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { AttendanceDay, AttendanceStore, Employee, Rates, Role } from "./types";
 import { SEED_EMPLOYEES, SEED_RATES } from "./seed";
+import { envValue } from "./env";
 
 // Stockage en ligne (Upstash Redis), utilisé quand l'app est hébergée.
 // Chaque employé / jour / tarif est un champ séparé d'un hash Redis: chaque
@@ -12,17 +13,17 @@ const KEY_ATTENDANCE = "attendance"; // hash date ISO -> AttendanceDay (JSON)
 const KEY_RATES = "rates"; // hash rôle -> montant
 const KEY_SEEDED = "seeded";
 
+const url = () => envValue("UPSTASH_REDIS_REST_URL", "KV_REST_API_URL");
+const token = () => envValue("UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_TOKEN");
+
 export function isRedisConfigured(): boolean {
-  return Boolean(
-    (process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL) &&
-      (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN),
-  );
+  return Boolean(url() && token());
 }
 
 let client: Redis | null = null;
 function redis(): Redis {
   // Sérialisation JSON faite à la main: on sait exactement ce qui est stocké.
-  client ??= Redis.fromEnv({ automaticDeserialization: false });
+  client ??= new Redis({ url: url()!, token: token()!, automaticDeserialization: false });
   return client;
 }
 

@@ -74,6 +74,10 @@ function mutateJson<T>(file: string, fallback: T, mutate: (current: T) => T): Pr
 let seeded = false;
 export async function ensureSeed(): Promise<void> {
   if (seeded) return;
+  if (process.env.VERCEL) {
+    // Sur Vercel le disque est en lecture seule: sans base Upstash, rien ne peut marcher.
+    throw new Error("Base de données non configurée: UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN manquants dans Vercel.");
+  }
   await fs.mkdir(DATA_DIR, { recursive: true });
   if (!(await fileExists(EMPLOYEES_FILE))) {
     await writeJsonAtomic(EMPLOYEES_FILE, SEED_EMPLOYEES);
