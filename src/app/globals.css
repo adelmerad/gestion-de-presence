@@ -29,6 +29,10 @@
   --recep-wash: #f3e5ee;
   --manip: #b26d0e;
   --manip-wash: #f8ecd8;
+  --menage: #6b7f24;
+  --menage-wash: #edf0dc;
+  --doc: #2f3d3a; /* médecins: blouse, ton neutre */
+  --doc-wash: #e2e7e5;
 }
 
 @theme inline {
@@ -51,6 +55,10 @@
   --color-recep-wash: var(--recep-wash);
   --color-manip: var(--manip);
   --color-manip-wash: var(--manip-wash);
+  --color-menage: var(--menage);
+  --color-menage-wash: var(--menage-wash);
+  --color-doc: var(--doc);
+  --color-doc-wash: var(--doc-wash);
 
   --font-display: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-hanken), system-ui, sans-serif;

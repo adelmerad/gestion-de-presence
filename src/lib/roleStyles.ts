@@ -5,4 +5,7 @@ export const ROLE_STYLES: Record<Role, { text: string; wash: string; dot: string
   technicien: { text: "text-tech", wash: "bg-tech-wash", dot: "bg-tech", border: "border-tech" },
   receptionniste: { text: "text-recep", wash: "bg-recep-wash", dot: "bg-recep", border: "border-recep" },
   manipulateur: { text: "text-manip", wash: "bg-manip-wash", dot: "bg-manip", border: "border-manip" },
+  menage: { text: "text-menage", wash: "bg-menage-wash", dot: "bg-menage", border: "border-menage" },
+  medecin: { text: "text-doc", wash: "bg-doc-wash", dot: "bg-doc", border: "border-doc" },
+  chef: { text: "text-doc", wash: "bg-doc-wash", dot: "bg-doc", border: "border-doc" },
 };

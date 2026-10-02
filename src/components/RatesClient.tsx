@@ -15,6 +15,7 @@ const FIELDS: { role: keyof Rates; unit: string; hint: string }[] = [
   { role: "technicien", unit: "par jour", hint: "Versé pour chaque jour de présence." },
   { role: "receptionniste", unit: "par jour", hint: "Versé pour chaque jour de présence." },
   { role: "manipulateur", unit: "par scanner", hint: "Multiplié par le nombre de scanners du jour." },
+  { role: "menage", unit: "par jour", hint: "Versé pour chaque jour travaillé." },
 ];
 
 export function RatesClient({ initialRates }: RatesClientProps) {
@@ -53,10 +54,11 @@ export function RatesClient({ initialRates }: RatesClientProps) {
 
       <p className="mb-5 max-w-xl text-sm leading-relaxed text-ink-soft">
         Montant versé à chaque employé selon son rôle. Une modification s&apos;applique à tous les calculs, y compris les
-        mois passés.
+        mois passés. Les médecins remplaçants n&apos;ont pas de tarif : leur montant est saisi chaque jour dans le
+        calendrier.
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         {FIELDS.map(({ role, unit, hint }) => {
           const changed = draft[role] !== rates[role];
           return (

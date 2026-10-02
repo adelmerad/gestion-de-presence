@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateEmployee } from "@/lib/db";
+import { ROLES } from "@/lib/types";
 
 const patchSchema = z.object({
   name: z.string().trim().min(1).optional(),
-  role: z.enum(["technicien", "receptionniste", "manipulateur"]).optional(),
+  role: z.enum(ROLES).optional(),
   active: z.boolean().optional(),
 });
 

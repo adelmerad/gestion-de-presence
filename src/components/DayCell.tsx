@@ -1,4 +1,4 @@
-import { AttendanceDay, AttendanceValue, Employee, Rates } from "@/lib/types";
+import { AttendanceDay, AttendanceValue, Employee, isDoctor, Rates } from "@/lib/types";
 import { isSameMonth, isToday } from "@/lib/dates";
 import { dayTotal } from "@/lib/payroll";
 import { ROLE_STYLES } from "@/lib/roleStyles";
@@ -48,7 +48,10 @@ export function DayCell({ date, monthDate, isFridayCell, entries, employees, rat
     );
   }
 
-  const present = employees.filter((e) => entries?.[e.id] !== undefined);
+  // Le médecin du jour en premier.
+  const present = employees
+    .filter((e) => entries?.[e.id] !== undefined)
+    .sort((a, b) => Number(isDoctor(b.role)) - Number(isDoctor(a.role)));
   const total = entries ? dayTotal(employees, entries as Record<string, AttendanceValue>, rates) : 0;
 
   return (
@@ -66,7 +69,7 @@ export function DayCell({ date, monthDate, isFridayCell, entries, employees, rat
         {present.map((emp) => {
           const value = entries?.[emp.id];
           const style = ROLE_STYLES[emp.role];
-          return typeof value === "number" ? (
+          return emp.role === "manipulateur" && typeof value === "number" ? (
             <span key={emp.id} className={`rounded-full px-1 font-mono text-[9px] font-bold leading-[12px] ${style.wash} ${style.text}`}>
               {value}
             </span>
@@ -84,7 +87,7 @@ export function DayCell({ date, monthDate, isFridayCell, entries, employees, rat
           return (
             <span key={emp.id} className={`flex items-center gap-1 truncate border-l-2 pl-1.5 text-[11.5px] font-medium leading-[15px] text-ink ${style.border}`}>
               <span className="truncate">{emp.name}</span>
-              {typeof value === "number" && <span className={`font-mono text-[10px] font-bold ${style.text}`}>×{value}</span>}
+              {emp.role === "manipulateur" && typeof value === "number" && <span className={`font-mono text-[10px] font-bold ${style.text}`}>×{value}</span>}
             </span>
           );
         })}

@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { addEmployee, readEmployees } from "@/lib/db";
+import { ROLES } from "@/lib/types";
 
 const createSchema = z.object({
   name: z.string().trim().min(1, "Le nom est requis"),
-  role: z.enum(["technicien", "receptionniste", "manipulateur"]),
+  role: z.enum(ROLES),
 });
 
 export async function GET() {

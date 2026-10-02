@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { AttendanceDay, AttendanceStore, Employee, Rates, Role } from "./types";
+import { AttendanceDay, AttendanceStore, Employee, RatedRole, Rates } from "./types";
 import { SEED_EMPLOYEES, SEED_RATES } from "./seed";
 import { envValue } from "./env";
 
@@ -110,7 +110,7 @@ export async function readRates(): Promise<Rates> {
   await ensureSeed();
   const all = await readHash(KEY_RATES);
   const rates = { ...SEED_RATES };
-  for (const role of Object.keys(rates) as Role[]) {
+  for (const role of Object.keys(rates) as RatedRole[]) {
     if (all[role] !== undefined) rates[role] = Number(all[role]);
   }
   return rates;

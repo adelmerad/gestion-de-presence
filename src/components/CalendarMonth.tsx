@@ -1,4 +1,4 @@
-import { AttendanceStore, Employee, Rates, Role, ROLE_LABELS } from "@/lib/types";
+import { AttendanceStore, Employee, Rates, Role, ROLE_LABELS, ROLES } from "@/lib/types";
 import { buildMonthGrid, isFriday, toISODate, WEEKDAY_LABELS_SAT_START } from "@/lib/dates";
 import { ROLE_STYLES } from "@/lib/roleStyles";
 import { DayCell } from "./DayCell";
@@ -11,10 +11,15 @@ interface CalendarMonthProps {
   onDayClick: (dateISO: string) => void;
 }
 
-const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur"];
+// Une seule entrée pour les deux rôles de médecin (même couleur).
+const LEGEND_LABELS: Partial<Record<Role, string>> = { medecin: "Médecin" };
 
 export function CalendarMonth({ monthDate, attendance, employees, rates, onDayClick }: CalendarMonthProps) {
   const { weeks } = buildMonthGrid(monthDate);
+  // Rôles présents dans l'équipe; "chef" est regroupé sous "medecin".
+  const legendRoles = ROLES.filter(
+    (r) => r !== "chef" && employees.some((e) => e.active && (e.role === r || (r === "medecin" && e.role === "chef"))),
+  );
 
   return (
     <div>
@@ -49,10 +54,10 @@ export function CalendarMonth({ monthDate, attendance, employees, rates, onDayCl
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 px-1 text-xs text-ink-soft">
-        {ROLES.map((role) => (
+        {legendRoles.map((role) => (
           <span key={role} className="inline-flex items-center gap-1.5">
             <span className={`h-2 w-2 rounded-full ${ROLE_STYLES[role].dot}`} />
-            {ROLE_LABELS[role]}
+            {LEGEND_LABELS[role] ?? ROLE_LABELS[role]}
             {role === "manipulateur" && <span className="text-ink-faint">(nb de scanners)</span>}
           </span>
         ))}
