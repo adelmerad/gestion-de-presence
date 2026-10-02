@@ -26,6 +26,18 @@ function redis(): Redis {
   return client;
 }
 
+/**
+ * Lit un hash entier. Sans désérialisation automatique, le client renvoie
+ * HGETALL tel quel: une liste plate [champ, valeur, champ, valeur, ...].
+ */
+async function readHash(key: string): Promise<Record<string, string>> {
+  const raw = (await redis().hgetall(key)) as unknown;
+  if (!Array.isArray(raw)) return (raw as Record<string, string> | null) ?? {};
+  const hash: Record<string, string> = {};
+  for (let i = 0; i < raw.length; i += 2) hash[raw[i]] = raw[i + 1];
+  return hash;
+}
+
 let seeded = false;
 async function ensureSeed(): Promise<void> {
   if (seeded) return;
@@ -47,9 +59,9 @@ export async function readEmployees(): Promise<Employee[]> {
   await ensureSeed();
   const [order, all] = await Promise.all([
     redis().lrange(KEY_EMPLOYEE_ORDER, 0, -1),
-    redis().hgetall<Record<string, string>>(KEY_EMPLOYEES),
+    readHash(KEY_EMPLOYEES),
   ]);
-  return order.flatMap((id) => (all?.[id] ? [JSON.parse(all[id]) as Employee] : []));
+  return order.flatMap((id) => (all[id] ? [JSON.parse(all[id]) as Employee] : []));
 }
 
 export async function addEmployee(employee: Employee): Promise<void> {
@@ -75,9 +87,9 @@ export async function updateEmployee(
 
 export async function readAttendance(): Promise<AttendanceStore> {
   await ensureSeed();
-  const all = await redis().hgetall<Record<string, string>>(KEY_ATTENDANCE);
+  const all = await readHash(KEY_ATTENDANCE);
   const store: AttendanceStore = {};
-  for (const [date, raw] of Object.entries(all ?? {})) {
+  for (const [date, raw] of Object.entries(all)) {
     store[date] = JSON.parse(raw) as AttendanceDay;
   }
   return store;
@@ -95,10 +107,10 @@ export async function setAttendanceDay(dateISO: string, entries: AttendanceDay):
 
 export async function readRates(): Promise<Rates> {
   await ensureSeed();
-  const all = await redis().hgetall<Record<string, string>>(KEY_RATES);
+  const all = await readHash(KEY_RATES);
   const rates = { ...SEED_RATES };
   for (const role of Object.keys(rates) as Role[]) {
-    if (all?.[role] !== undefined) rates[role] = Number(all[role]);
+    if (all[role] !== undefined) rates[role] = Number(all[role]);
   }
   return rates;
 }
