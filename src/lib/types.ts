@@ -1,7 +1,7 @@
-export type Role = "technicien" | "receptionniste" | "manipulateur" | "menage" | "medecin" | "chef";
+export type Role = "technicien" | "receptionniste" | "manipulateur" | "manipulateur_jour" | "menage" | "medecin" | "chef";
 
 /** Tous les rôles, dans l'ordre d'affichage. */
-export const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur", "menage", "medecin", "chef"];
+export const ROLES: Role[] = ["technicien", "receptionniste", "manipulateur", "manipulateur_jour", "menage", "medecin", "chef"];
 
 /** Rôles des médecins: un seul est de garde chaque jour ("médecin du jour"). */
 export const DOCTOR_ROLES: Role[] = ["chef", "medecin"];
@@ -33,7 +33,7 @@ export const canHaveFixedSalary = (role: Role) => !DOCTOR_ROLES.includes(role);
 
 /**
  * Valeur d'un employé pour un jour (clé absente = absent):
- * - menage, chef: `true` = présent.
+ * - manipulateur_jour, menage, chef: `true` = présent.
  * - technicien, receptionniste: `true` = présent; un nombre = présent ET ce
  *   nombre de scanners faits en plus (payés au tarif "scanBonus").
  * - manipulateur: nombre de scanners effectués.
@@ -53,14 +53,15 @@ export const ROLE_LABELS: Record<Role, string> = {
   technicien: "Technicien(ne)",
   receptionniste: "Réceptionniste",
   manipulateur: "Manipulateur",
+  manipulateur_jour: "Manipulateur (journée)",
   menage: "Femme de ménage",
   medecin: "Médecin remplaçant",
   chef: "Médecin chef",
 };
 
 /** Rôles payés selon un tarif fixe (les autres: montant libre ou non payé). */
-export type RatedRole = "technicien" | "receptionniste" | "manipulateur" | "menage";
-export const RATED_ROLES: RatedRole[] = ["technicien", "receptionniste", "manipulateur", "menage"];
+export type RatedRole = "technicien" | "receptionniste" | "manipulateur" | "manipulateur_jour" | "menage";
+export const RATED_ROLES: RatedRole[] = ["technicien", "receptionniste", "manipulateur", "manipulateur_jour", "menage"];
 
 /**
  * Tarifs en DA: montant par jour de présence pour chaque rôle, sauf
