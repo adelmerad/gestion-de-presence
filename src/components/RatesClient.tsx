@@ -22,6 +22,7 @@ const FIELDS: { key: RateKey; badge: ReactNode; unit: string; hint: string }[] =
   { key: "technicien", badge: <RoleBadge role="technicien" />, unit: "par jour", hint: "Versé pour chaque jour de présence." },
   { key: "receptionniste", badge: <RoleBadge role="receptionniste" />, unit: "par jour", hint: "Versé pour chaque jour de présence." },
   { key: "manipulateur", badge: <RoleBadge role="manipulateur" />, unit: "par scanner", hint: "Multiplié par le nombre de scanners du jour." },
+  { key: "manipulateur_jour", badge: <RoleBadge role="manipulateur_jour" />, unit: "par jour", hint: "Versé pour chaque jour de présence." },
   { key: "menage", badge: <RoleBadge role="menage" />, unit: "par jour", hint: "Versé pour chaque jour travaillé." },
   {
     key: "scanBonus",

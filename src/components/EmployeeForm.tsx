@@ -17,6 +17,7 @@ interface EmployeeFormProps {
 
 const ROLE_HINTS: Partial<Record<Role, string>> = {
   manipulateur: "Payé au nombre de scanners effectués, pas à la journée.",
+  manipulateur_jour: "Payé pour chaque jour de présence (tarif réglable dans Tarifs).",
   medecin: "Le montant est saisi à la main chaque jour où il/elle remplace.",
   chef: "Apparaît comme médecin du jour, mais n'est pas compté dans la paie.",
 };
