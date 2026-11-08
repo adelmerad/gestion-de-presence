@@ -1,12 +1,12 @@
 import { Employee, Rates } from "./types";
 
 export const SEED_EMPLOYEES: Employee[] = [
-  { id: "amel", name: "Amel", role: "technicien", active: true },
-  { id: "saliha", name: "Saliha", role: "technicien", active: true },
-  { id: "adel", name: "Adel", role: "receptionniste", active: true },
-  { id: "imad", name: "Imad", role: "receptionniste", active: true },
-  { id: "walid", name: "Walid", role: "receptionniste", active: true },
-  { id: "nadjib", name: "Nadjib", role: "manipulateur", active: true },
+  { id: "yasmine", name: "Yasmine", role: "technicien", active: true },
+  { id: "karim", name: "Karim", role: "technicien", active: true },
+  { id: "lina", name: "Lina", role: "receptionniste", active: true },
+  { id: "sofiane", name: "Sofiane", role: "receptionniste", active: true },
+  { id: "meriem", name: "Meriem", role: "receptionniste", active: true },
+  { id: "rym", name: "Rym", role: "manipulateur", active: true },
 ];
 
 export const SEED_RATES: Rates = {
